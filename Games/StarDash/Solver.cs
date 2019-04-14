@@ -86,5 +86,37 @@ namespace Joueur.cs.Games.Stardash
         {
             return Math.Sqrt(dx * dx + dy * dy);
         }
+
+        public static double distanceSquared(double dx, double dy)
+        {
+            return dx * dx + dy * dy;
+        }
+
+        public static bool collision(double x1, double y1, double x2, double y2, double cx, double cy, double radius)
+        {
+            var v12 = new Vector(x2 - x1, y2 - y1);
+            var v1C = new Vector(cx - x1, cy - y1);
+
+            var radiusSquare = radius * radius;
+            if (Solver.distanceSquared(cx - x1, cy - y1) <= radiusSquare)
+            {
+                return true;
+            }
+            if (Solver.distanceSquared(cx - x2, cy - y2) <= radiusSquare)
+            {
+                return true;
+            }
+
+            var unit12 = v12.unit();
+            var scalarProjection = v1C.dot(unit12);
+
+            if (scalarProjection <= 0 || scalarProjection >= 1)
+            {
+                return false;
+            }
+
+            var projected = v12.scale(scalarProjection);
+            return Solver.distanceSquared(v1C.x - projected.x, v1C.y - projected.y) <= radiusSquare;
+        }
     }
 }
