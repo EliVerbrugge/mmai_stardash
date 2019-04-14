@@ -61,44 +61,6 @@ namespace Joueur.cs.Games.Stardash
             unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
         }
 
-        public static void dashToward(Unit unit, double x, double y, double range = 0)
-        {
-            if (unit.Moves == 0)
-            {
-                return;
-            }
-
-            if (sunCollision(unit, x, y))
-            {
-                var availableRoutePoints = AI.ROUTE_POINTS.Where(v => !sunCollision(unit, v.x, v.y)).ToArray();
-                if (availableRoutePoints.Length == 0)
-                {
-                    Console.WriteLine("No available route points {0}", new Vector(unit.X, unit.Y));
-                    return;
-                }
-
-                var bestRoutePoint = availableRoutePoints.MinByValue(v => Solver.distanceSquared(x - v.x, y - v.y));
-
-                dashToward(unit, bestRoutePoint.x, bestRoutePoint.y);
-                if (unit.Moves > 0)
-                {
-                    // moveToward(unit, x, y, range);
-                }
-                return;
-            }
-
-            var dx = x - unit.X;
-            var dy = y - unit.Y;
-            var distance = Solver.distance(dx, dy);
-            if (inRangeE2(distance, range))
-            {
-                return;
-            }
-
-            var magnitude = Math.Min(unit.Moves - ERROR, distance - range + ERROR2);
-            unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
-        }
-
         public static void mine(Unit miner, IEnumerable<Body> bodies)
         {
             if (miner.Acted || miner.remainingCapacity() == 0)
