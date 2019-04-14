@@ -133,12 +133,19 @@ namespace Joueur.cs.Games.Stardash
             Console.WriteLine("Turn #{0} - {1}v{2} {3}v{4}", this.Game.CurrentTurn, this.Player.VictoryPoints, this.Player.Opponent.VictoryPoints, this.Player.Units.Count(u => u.Job == AI.MINER), this.Player.Opponent.Units.Count(u => u.Job == AI.MINER));
             Spawning();
 
-            var miners = this.Player.Units.Where(u => u.Job == AI.MINER).ToArray();
-            if (this.Player.VictoryPoints + this.Player.Units.Sum(m => m.Mythicite) > AI.GAME.MythiciteAmount / 2)
+            var totalMythicite = AI.GAME.Units.Sum(u => u.Mythicite) + AI.MYTHICITE.Amount + AI.PLAYER.VictoryPoints + AI.OPPONENT.VictoryPoints;
+            if (this.Player.VictoryPoints + this.Player.Units.Sum(m => m.Mythicite) > totalMythicite / 2)
             {
                 BringItIn();
             }
 
+
+            if (this.Player.VictoryPoints > totalMythicite / 2)
+            {
+                EvasiveMineuvers();
+            }
+
+            var miners = this.Player.Units.Where(u => u.Job == AI.MINER).ToArray();
             if (miners.Length > 10)
             {
                 MinerLogic(miners.Skip(2));
@@ -159,6 +166,11 @@ namespace Joueur.cs.Games.Stardash
             {
                 Solver.moveToward(unit, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, AI.PLAYER.HomeBase.Radius, true);
             }
+        }
+
+        public void EvasiveMineuvers()
+        {
+
         }
 
         public void MinerLogic(IEnumerable<Unit> miners)
@@ -330,7 +342,8 @@ namespace Joueur.cs.Games.Stardash
             };
             while (Player.Money >= desiredUnits[spawnListIndex].UnitCost && Player.Units.Count <= AI.UNIT_CAP)
             {
-                this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, desiredUnits[spawnListIndex].Title);
+                var x = this.Player.HomeBase.X < this.Game.SizeX / 2 ? this.Player.HomeBase.X + this.Player.HomeBase.Radius : this.Player.HomeBase.X - this.Player.HomeBase.Radius;
+                this.Player.HomeBase.Spawn(x, this.Player.HomeBase.Y, desiredUnits[spawnListIndex].Title);
                 spawnListIndex++;
                 if (spawnListIndex >= desiredUnits.Count)
                 {
