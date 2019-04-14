@@ -35,6 +35,16 @@ namespace Joueur.cs.Games.Stardash
         #endregion
 
 
+        public static Game GAME;
+        public static Player PLAYER;
+        public static Player OPPONENT;
+        public static Job CORVETTE;
+        public static Job MISSILE_BOAT;
+        public static Job MARTYR;
+        public static Job TRANSPORT;
+        public static Job MINER;
+
+
         #region Methods
         /// <summary>
         /// This returns your AI's name to the game server. Just replace the string.
@@ -43,7 +53,7 @@ namespace Joueur.cs.Games.Stardash
         public override string GetName()
         {
             // <<-- Creer-Merge: get-name -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-            return "Stardash C# Player"; // REPLACE THIS WITH YOUR TEAM NAME!
+            return "Prime_Directive_Violations"; // REPLACE THIS WITH YOUR TEAM NAME!
             // <<-- /Creer-Merge: get-name -->>
         }
 
@@ -58,6 +68,14 @@ namespace Joueur.cs.Games.Stardash
             // <<-- Creer-Merge: start -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
             base.Start();
             // <<-- /Creer-Merge: start -->>
+            AI.GAME = this.Game;
+            AI.PLAYER = this.Player;
+            AI.OPPONENT = this.Player.Opponent;
+            AI.CORVETTE = this.Game.Jobs[0];
+            AI.MISSILE_BOAT = this.Game.Jobs[1];
+            AI.MARTYR = this.Game.Jobs[2];
+            AI.TRANSPORT = this.Game.Jobs[3];
+            AI.MINER = this.Game.Jobs[4];
         }
 
         /// <summary>
@@ -96,7 +114,14 @@ namespace Joueur.cs.Games.Stardash
         public bool RunTurn()
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-            // Put your game logic here for runTurn
+            
+            var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
+
+            foreach (var miner in miners)
+            {
+            }
+
+
             return true;
             // <<-- /Creer-Merge: runTurn -->>
         }
