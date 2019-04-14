@@ -188,6 +188,18 @@ namespace Joueur.cs.Games.Stardash
 
             }
         }
+
+        public void MissileBoatLogic()
+        {
+            foreach (var missileboat in this.Player.Units.Where(u => u.Job == AI.MISSILE_BOAT))
+            {
+                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER && u.distance(missileboat) <= 500));
+                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER && u.distance(missileboat) <= 500));
+                Solver.attack(missileboat, AI.OPPONENT.Units);
+
+            }
+        }
+
         public void Spawning()
         {
             var desiredUnits = new List<Job>
@@ -195,9 +207,9 @@ namespace Joueur.cs.Games.Stardash
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,
-                AI.TRANSPORT,
                 AI.CORVETTE,
                 AI.CORVETTE,
+                AI.MISSILE_BOAT
             };
             while (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
             {
