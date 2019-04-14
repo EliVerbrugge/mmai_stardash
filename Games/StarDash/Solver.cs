@@ -42,6 +42,46 @@ namespace Joueur.cs.Games.Stardash
             unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
         }
 
+        public static void mine(Unit miner, IEnumerable<Body> bodies)
+        {
+            if (miner.Acted || miner.remainingCapacity() == 0)
+            {
+                return;
+            }
+            var nearest = bodies.Where(b => b.Amount > 0).MinByValue(b => b.distance(miner));
+            if (nearest == null)
+            {
+                return;
+            }
+
+            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius);
+
+            if (miner.distance(nearest) < miner.Job.Range + nearest.Radius)
+            {
+                miner.Mine(nearest);
+            }
+        }
+
+        public static void attack(Unit attacker, IEnumerable<Unit> targets)
+        {
+            if (attacker.Acted || attacker.Job.Damage == 0)
+            {
+                return;
+            }
+            var nearest = targets.Where(t => t.Energy > 0).MinByValue(t => t.distance(attacker));
+            if (nearest == null)
+            {
+                return;
+            }
+
+            moveToward(attacker, nearest.X, nearest.Y, attacker.Job.Range + AI.GAME.ShipRadius);
+
+            if (attacker.distance(nearest) < attacker.Job.Range + AI.GAME.ShipRadius)
+            {
+                attacker.Attack(nearest);
+            }
+        }
+
         public static double distance(double dx, double dy)
         {
             return Math.Sqrt(dx * dx + dy * dy);
