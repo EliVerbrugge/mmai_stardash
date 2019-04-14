@@ -76,7 +76,7 @@ namespace Joueur.cs.Games.Stardash
                 return;
             }
 
-            var firstInRangeThisTurn = AI.VALUE_ORDERED_ASTEROIDS.FirstOrDefault(b => miner.inMiningRangeThisTurn(b));
+            var firstInRangeThisTurn = bodies.FirstOrDefault(b => miner.inMiningRangeThisTurn(b) && miner.canMine(b));
             if (firstInRangeThisTurn != null)
             {
                 Console.WriteLine("Mine near");
@@ -85,11 +85,13 @@ namespace Joueur.cs.Games.Stardash
                 return;
             }
 
-            var nearest = bodies.Where(b => b.Amount > 0 && b.MaterialType != "none").MinByValue(b => b.distance(miner));
-            if (nearest == null)
+            var bodiesWithMaterial = bodies.Where(b => b.Amount > 0 && b.MaterialType != "none");
+            if (bodiesWithMaterial.Count() == 0)
             {
                 return;
             }
+
+            var nearest = bodiesWithMaterial.MinByValue(b => b.distance(miner));
             
             moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius, doDash);
 
@@ -125,7 +127,7 @@ namespace Joueur.cs.Games.Stardash
                     return;
                 }
 
-                moveToward(transport, nearest.X, nearest.Y, transport.Job.Range);
+                moveToward(transport, nearest.X, nearest.Y, transport.Job.Range, true);
 
                 if (noCarries)
                 {

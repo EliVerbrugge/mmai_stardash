@@ -146,19 +146,23 @@ namespace Joueur.cs.Games.Stardash
             var next = new Vector(AI.MYTHICITE.X, AI.MYTHICITE.Y).rotate(new Vector(AI.SUN.X, AI.SUN.Y), ((-2 * Math.PI) / AI.GAME.TurnsToOrbit) * 2);
             foreach (var miner in miners)
             {
-                if (miner.canMine(AI.MYTHICITE) && miner.inMiningRangeThisTurn(AI.MYTHICITE))
+                if (miners.Count() > 6)
                 {
-                    Console.WriteLine("Get Mythicite");
-                    Solver.mine(miner, new[] { AI.MYTHICITE });
-                    continue;
-                }
-                if (miner.canDash(next.x, next.y) && !Solver.sunCollision(miner, next.x, next.y) && miner.remainingCapacity() > 0)
-                {
-                    Console.WriteLine("Dash to Mythicite");
-                    miner.Dash(next.x, next.y);
+                    if (miner.canMine(AI.MYTHICITE) && miner.inMiningRangeThisTurn(AI.MYTHICITE))
+                    {
+                        Console.WriteLine("Get Mythicite");
+                        Solver.mine(miner, new[] { AI.MYTHICITE });
+                        continue;
+                    }
+                    if (miner.canDash(next.x, next.y) && !Solver.sunCollision(miner, next.x, next.y) && miner.remainingCapacity() > 0)
+                    {
+                        Console.WriteLine("Dash to Mythicite");
+                        miner.Dash(next.x, next.y);
+                    }
                 }
 
-                Solver.mine(miner, AI.VALUE_ORDERED_ASTEROIDS, true);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "legendarium"), true);
+                Solver.mine(miner, AI.VALUE_ORDERED_ASTEROIDS);
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (miner.remainingCapacity() == 0)
                 {
@@ -189,7 +193,6 @@ namespace Joueur.cs.Games.Stardash
             {
                 Solver.attack(corvette, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER));
                 Solver.attack(corvette, AI.OPPONENT.Units);
-
             }
         }
 
@@ -210,20 +213,10 @@ namespace Joueur.cs.Games.Stardash
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,
-                AI.MISSILE_BOAT,
-                AI.CORVETTE,
-                AI.CORVETTE,
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,
-                AI.TRANSPORT,
-                AI.CORVETTE,
-                AI.CORVETTE,
                 AI.MINER,
-                AI.MINER,
-                AI.MINER,
-                AI.CORVETTE,
-                AI.CORVETTE,
             };
             while (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
             {
