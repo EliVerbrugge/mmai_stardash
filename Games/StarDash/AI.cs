@@ -129,7 +129,7 @@ namespace Joueur.cs.Games.Stardash
         public bool RunTurn()
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-            Console.WriteLine("Turn #{0}", this.Game.CurrentTurn);
+            Console.WriteLine("Turn #{0} - {1}v{2} {3}v{4}", this.Game.CurrentTurn, this.Player.VictoryPoints, this.Player.Opponent.VictoryPoints, this.Player.Units.Count(u => u.Job == AI.MINER), this.Player.Opponent.Units.Count(u => u.Job == AI.MINER));
             Spawning();
             MinerLogic();
             TransportLogic();
@@ -153,7 +153,8 @@ namespace Joueur.cs.Games.Stardash
 
                 var predictAndDash = AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2);
                 Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "legendarium"), predictAndDash, predictAndDash);
-                Solver.mine(miner, AI.VALUE_ORDERED_ASTEROIDS, predictAndDash, predictAndDash);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "rarium"), predictAndDash, predictAndDash);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "genarium"), predictAndDash, predictAndDash);
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (miner.remainingCapacity() == 0)
                 {
@@ -191,9 +192,8 @@ namespace Joueur.cs.Games.Stardash
         {
             foreach (var missileboat in this.Player.Units.Where(u => u.Job == AI.MISSILE_BOAT))
             {
-                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER), true);
-                Solver.attack(missileboat, AI.OPPONENT.Units);
-
+                Solver.missileNearest(missileboat);
+                Solver.moveAheadOf(missileboat, AI.MYTHICITE, 4);
             }
         }
 
@@ -201,6 +201,14 @@ namespace Joueur.cs.Games.Stardash
         {
             var desiredUnits = new List<Job>
             {
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,

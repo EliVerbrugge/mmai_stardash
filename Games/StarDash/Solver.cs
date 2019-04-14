@@ -200,6 +200,40 @@ namespace Joueur.cs.Games.Stardash
             }
         }
 
+        public static void moveAheadOf(Unit unit, Body body, int turns)
+        {
+            var expectedTurns = turns;
+            var nextV = body.next(expectedTurns);
+            while (sunCollision(unit, nextV.x, nextV.y))
+            {
+                nextV = body.next(expectedTurns += 2);
+            }
+
+            // Dash when it works
+            moveToward(unit, nextV.x, nextV.y, 0, !sunCollision(unit, nextV.x, nextV.y));
+        }
+
+        public static void missileNearest(Unit unit)
+        {
+            if (unit.Acted || unit.IsBusy)
+            {
+                return;
+            }
+
+            var enemies = unit.Owner.Opponent.Units.Where(e => e.Energy > 0);
+            if (!enemies.Any())
+            {
+                return;
+            }
+
+            var nearest = enemies.MinByValue(e => e.distance(unit));
+
+            if (inRangeE1(nearest.distance(unit), unit.Job.Range + AI.GAME.ShipRadius))
+            {
+                unit.Attack(nearest);
+            }
+        }
+
         public static void attack(Unit attacker, IEnumerable<Unit> targets, bool missile=false)
         {
             if (attacker.Acted || attacker.Job.Damage == 0)
