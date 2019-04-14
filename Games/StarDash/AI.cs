@@ -133,6 +133,11 @@ namespace Joueur.cs.Games.Stardash
             Spawning();
 
             var miners = this.Player.Units.Where(u => u.Job == AI.MINER).ToArray();
+            if (this.Player.VictoryPoints + this.Player.Units.Sum(m => m.Mythicite) > AI.GAME.MythiciteAmount / 2)
+            {
+                BringItIn();
+            }
+
             if (miners.Length > 10)
             {
                 MinerLogic(miners.Skip(2));
@@ -148,6 +153,14 @@ namespace Joueur.cs.Games.Stardash
             MissileBoatLogic();
             return true;
             // <<-- /Creer-Merge: runTurn -->>
+        }
+
+        public void BringItIn()
+        {
+            foreach (var unit in AI.PLAYER.Units.Where(u => u.Mythicite > 0))
+            {
+                Solver.moveToward(unit, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, AI.PLAYER.HomeBase.Radius, true);
+            }
         }
 
         public void MinerLogic(IEnumerable<Unit> miners)
