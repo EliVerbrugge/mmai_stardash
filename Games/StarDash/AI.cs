@@ -143,7 +143,7 @@ namespace Joueur.cs.Games.Stardash
         {
             var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
 
-            var next = new Vector(AI.MYTHICITE.X, AI.MYTHICITE.Y).rotate(new Vector(AI.SUN.X, AI.SUN.Y), ((-2 * Math.PI) / AI.GAME.TurnsToOrbit) * 2);
+            var next = AI.MYTHICITE.next(2);
             foreach (var miner in miners)
             {
                 if (miners.Count() > 6)
@@ -154,15 +154,16 @@ namespace Joueur.cs.Games.Stardash
                         Solver.mine(miner, new[] { AI.MYTHICITE });
                         continue;
                     }
-                    if (miner.canDash(next.x, next.y) && !Solver.sunCollision(miner, next.x, next.y) && miner.remainingCapacity() > 0)
+                    if (!Solver.sunCollision(miner, next.x, next.y) && miner.canMoveAndDash(next.x, next.y) &&  miner.remainingCapacity() > 0)
                     {
                         Console.WriteLine("Dash to Mythicite");
-                        miner.Dash(next.x, next.y);
+                        Solver.moveToward(miner, next.x, next.y, 0, true);
                     }
                 }
 
-                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "legendarium"), true);
-                Solver.mine(miner, AI.VALUE_ORDERED_ASTEROIDS);
+                var predictAndDash = AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "legendarium"), predictAndDash, predictAndDash);
+                Solver.mine(miner, AI.VALUE_ORDERED_ASTEROIDS, predictAndDash, predictAndDash);
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (miner.remainingCapacity() == 0)
                 {

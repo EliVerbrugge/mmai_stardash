@@ -25,7 +25,7 @@ namespace Joueur.cs.Games.Stardash
 
         public static void moveToward(Unit unit, double x, double y, double range = 0, bool doDash = false)
         {
-            if (unit.Moves == 0)
+            if (unit.Moves == 0 && !doDash)
             {
                 return;
             }
@@ -58,20 +58,33 @@ namespace Joueur.cs.Games.Stardash
             }
 
             var netDistance = distance - range + ERROR2;
-            if (doDash && netDistance > unit.Moves + unit.Job.Moves && unit.canDash(netDistance))
-            {
-                unit.Dash(unit.X + (dx / distance) * netDistance, unit.Y + (dy / distance) * netDistance);
-            }
-            else
+            if (unit.Moves > 0)
             {
                 var magnitude = Math.Min(unit.Moves - ERROR, netDistance);
                 unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
             }
+
+            if (doDash)
+            {
+                dx = x - unit.X;
+                dy = y - unit.Y;
+                distance = Solver.distance(dx, dy);
+                if (inRangeE2(distance, range))
+                {
+                    return;
+                }
+
+                netDistance = distance - range + ERROR2;
+                if (unit.canDash(netDistance))
+                {
+                    unit.Dash(unit.X + (dx / distance) * netDistance, unit.Y + (dy / distance) * netDistance);
+                }
+            }
         }
 
-        public static void mine(Unit miner, IEnumerable<Body> bodies, bool doDash = false)
+        public static void mine(Unit miner, IEnumerable<Body> bodies, bool doDash = false, bool doPredict = false)
         {
-            if (miner.Acted || miner.remainingCapacity() == 0)
+            if (miner.IsBusy || miner.remainingCapacity() == 0)
             {
                 return;
             }
@@ -85,18 +98,25 @@ namespace Joueur.cs.Games.Stardash
                 return;
             }
 
-            var bodiesWithMaterial = bodies.Where(b => b.Amount > 0 && b.MaterialType != "none");
+            var bodiesWithMaterial = bodies.Where(b => b.Amount > 0 && b.MaterialType != "none" && b.Owner != miner.Owner.Opponent);
             if (bodiesWithMaterial.Count() == 0)
             {
                 return;
             }
 
             var nearest = bodiesWithMaterial.MinByValue(b => b.distance(miner));
-            
-            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius, doDash);
+            if (doPredict && doDash)
+            {
+                var next = nearest.next(2);
+                moveToward(miner, next.x, next.y, 0, doDash);
+            }
+            else
+            {
+                moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius, doDash);
+            }
 
 
-            if (miner.distance(nearest) < miner.Job.Range + nearest.Radius && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected)
+            if (AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected && !miner.IsBusy && inRangeE1(miner.distance(nearest), miner.Job.Range + nearest.Radius))
             {
                 miner.Mine(nearest);
             }

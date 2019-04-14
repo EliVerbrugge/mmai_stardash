@@ -67,6 +67,12 @@ namespace Joueur.cs.Games.Stardash
             return (int)Math.Ceiling((distance + Solver.ERROR) / AI.GAME.DashDistance) * AI.GAME.DashCost;
         }
 
+        public static bool canMoveAndDash(this Unit unit, double x, double y)
+        {
+            var distance = Solver.distance(x - unit.X, y - unit.Y);
+            return unit.Energy > unit.dashCost(distance - unit.Moves - Solver.ERROR2);
+        }
+
         public static bool canDash(this Unit unit, double x, double y)
         {
             return unit.Energy > unit.dashCost(x, y);
@@ -95,12 +101,17 @@ namespace Joueur.cs.Games.Stardash
 
         public static bool canMine(this Unit unit, Body body)
         {
-            return unit.Job == AI.MINER && body.MaterialType != "none" && body.Amount > 0 && body.Owner != unit.Owner.Opponent && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected && unit.remainingCapacity() > 0;
+            return unit.Job == AI.MINER && !unit.IsBusy && body.MaterialType != "none" && body.Amount > 0 && body.Owner != unit.Owner.Opponent && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected && unit.remainingCapacity() > 0;
         }
 
         public static bool inMiningRangeThisTurn(this Unit unit, Body body)
         {
             return Solver.inRangeE1(unit.distance(body) + unit.Moves, unit.Job.Range + body.Radius);
+        }
+
+        public static Vector next(this Body body, int turns)
+        {
+            return new Vector(body.X, body.Y).rotate(new Vector(AI.SUN.X, AI.SUN.Y), ((2 * Math.PI) / AI.GAME.TurnsToOrbit) * -turns);
         }
     }
 }
