@@ -167,7 +167,7 @@ namespace Joueur.cs.Games.Stardash
         {
             foreach (var miner in miners)
             {
-                if (miners.Count() > 15)
+                if (miners.Count() > 40)
                 {
                     Solver.mine(miner, new[] { AI.MYTHICITE }, true, true);
                 }
