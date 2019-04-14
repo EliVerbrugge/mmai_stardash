@@ -132,6 +132,7 @@ namespace Joueur.cs.Games.Stardash
             MinerLogic();
             TransportLogic();
             CorvetteLogic();
+            MissileBoatLogic();
             return true;
             // <<-- /Creer-Merge: runTurn -->>
         }
@@ -193,7 +194,6 @@ namespace Joueur.cs.Games.Stardash
         {
             foreach (var missileboat in this.Player.Units.Where(u => u.Job == AI.MISSILE_BOAT))
             {
-                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER), true);
                 Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER), true);
                 Solver.attack(missileboat, AI.OPPONENT.Units);
 

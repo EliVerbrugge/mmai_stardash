@@ -184,7 +184,7 @@ namespace Joueur.cs.Games.Stardash
             {
                 attacker.Attack(nearest);
             }
-            else if(missile && inRangeE1(attacker.distance(nearest), 500))
+            else if(missile && inRangeE1(attacker.distance(nearest), 300))
             {
                 attacker.Attack(nearest);
             }
