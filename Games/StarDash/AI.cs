@@ -48,7 +48,7 @@ namespace Joueur.cs.Games.Stardash
         public static Body BASE;
         public static List<Vector> ROUTE_POINTS;
 
-        public static int spawnListIndex = 0;
+        public static int spawnListIndex = 3;
         #region Methods
         /// <summary>
         /// This returns your AI's name to the game server. Just replace the string.
@@ -128,7 +128,11 @@ namespace Joueur.cs.Games.Stardash
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
             Console.WriteLine("Turn #{0}", this.Game.CurrentTurn);
+<<<<<<< HEAD
 
+=======
+            Spawning();
+>>>>>>> Spawn code
             MinerLogic();
             TransportLogic();
             return true;
@@ -163,7 +167,7 @@ namespace Joueur.cs.Games.Stardash
 
             foreach (var transporter in transporters)
             {
-                Console.WriteLine(transporter.remainingCapacity());
+                //Console.WriteLine(transporter.remainingCapacity());
                 Solver.transport(transporter, this.Player.Units, order);
 
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
@@ -189,13 +193,17 @@ namespace Joueur.cs.Games.Stardash
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,
-                AI.TRANSPORT
+                AI.TRANSPORT,
+                AI.CORVETTE,
+                AI.CORVETTE,
             };
-            while (PLAYER.Money > 0)
+            while(Player.Money >= desiredUnits[spawnListIndex].UnitCost)
             {
-                if (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
+                this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, desiredUnits[spawnListIndex].Title);
+                spawnListIndex++;
+                if (spawnListIndex > desiredUnits.Count() - 1)
                 {
-                    this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "miner");
+                    spawnListIndex = 0;
                 }
             }
         }
