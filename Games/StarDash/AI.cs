@@ -146,7 +146,7 @@ namespace Joueur.cs.Games.Stardash
             var next = AI.MYTHICITE.next(2);
             foreach (var miner in miners)
             {
-                if (miners.Count() > 6)
+                if (miners.Count() > 15)
                 {
                     if (miner.canMine(AI.MYTHICITE) && miner.inMiningRangeThisTurn(AI.MYTHICITE))
                     {
