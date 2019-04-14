@@ -144,7 +144,7 @@ namespace Joueur.cs.Games.Stardash
 
             foreach (var miner in minersNearMythicite.Take(mythiciteCount))
             {
-                Solver.mine(miner, this.Game.Bodies, "mythicite");
+                Solver.mine(miner, new[] { AI.MYTHICITE });
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (Extensions.remainingCapacity(miner) == 0)
                 {

@@ -42,9 +42,9 @@ namespace Joueur.cs.Games.Stardash
                 var bestRoutePoint = availableRoutePoints.MinByValue(v => Solver.distanceSquared(x - v.x, y - v.y));
 
                 moveToward(unit, bestRoutePoint.x, bestRoutePoint.y);
-                if (unit.Moves > 0)
+                if (hasMovesE2(unit))
                 {
-                    // moveToward(unit, x, y, range);
+                    moveToward(unit, x, y, range);
                 }
                 return;
             }
@@ -75,13 +75,13 @@ namespace Joueur.cs.Games.Stardash
 
             moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius);
 
-            if (miner.distance(nearest) < miner.Job.Range + nearest.Radius)
+            if (miner.distance(nearest) < miner.Job.Range + nearest.Radius && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected)
             {
                 miner.Mine(nearest);
             }
         }
 
-        public static void transport(Unit transport, IEnumerable<Unit> units, string[] order)
+        public static void transport(Unit transport, IEnumerable<Unit> units, string[] materials)
         {
             while (true)
             {
@@ -115,31 +115,41 @@ namespace Joueur.cs.Games.Stardash
 
                 if (transport.distance(nearest) < transport.Job.Range + .01)
                 {
-                    transport.Transfer(nearest, -1, order[0]);
-                    transport.Transfer(nearest, -1, order[1]);
-                    transport.Transfer(nearest, -1, order[2]);
-                    transport.Transfer(nearest, -1, order[3]);
+                    foreach (var material in materials)
+                    {
+                        transfer(transport, nearest, material);
+                    }
                 }
             }
         }
 
-        public static void mine(Unit miner, IEnumerable<Body> bodies, string mineral)
+        public static void transfer(Unit transport, Unit other, string material)
         {
-            if (miner.Acted || miner.remainingCapacity() == 0)
-            {
-                return;
-            }
-            var nearest = bodies.Where(b => b.Amount > 0 && b.MaterialType == mineral).MinByValue(b => b.distance(miner));
-            if (nearest == null)
+            if (transport.remainingCapacity() == 0)
             {
                 return;
             }
 
-            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius);
-
-            if (inRangeE1(miner.distance(nearest), miner.Job.Range + nearest.Radius))
+            var hasMineral = false;
+            switch (material)
             {
-                miner.Mine(nearest);
+                case "mythicite":
+                    hasMineral = other.Mythicite > 0;
+                    break;
+                case "legendarium":
+                    hasMineral = other.Legendarium > 0;
+                    break;
+                case "rarium":
+                    hasMineral = other.Rarium > 0;
+                    break;
+                case "genarium":
+                    hasMineral = other.Genarium > 0;
+                    break;
+            }
+
+            if (hasMineral)
+            {
+                transport.Transfer(other, -1, material);
             }
         }
 
