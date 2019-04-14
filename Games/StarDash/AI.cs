@@ -44,7 +44,6 @@ namespace Joueur.cs.Games.Stardash
         public static Job TRANSPORT;
         public static Job MINER;
 
-
         #region Methods
         /// <summary>
         /// This returns your AI's name to the game server. Just replace the string.
@@ -119,6 +118,8 @@ namespace Joueur.cs.Games.Stardash
 
             foreach (var miner in miners)
             {
+                var body = this.Game.Bodies.Where(b => b.MaterialType != "none").MinByValue(b => b.distance(miner));
+                Solver.moveToward(miner, body.X, body.Y);
             }
 
 
