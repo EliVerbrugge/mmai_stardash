@@ -131,7 +131,18 @@ namespace Joueur.cs.Games.Stardash
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
             Console.WriteLine("Turn #{0} - {1}v{2} {3}v{4}", this.Game.CurrentTurn, this.Player.VictoryPoints, this.Player.Opponent.VictoryPoints, this.Player.Units.Count(u => u.Job == AI.MINER), this.Player.Opponent.Units.Count(u => u.Job == AI.MINER));
             Spawning();
-            MinerLogic();
+
+            var miners = this.Player.Units.Where(u => u.Job == AI.MINER).ToArray();
+            if (miners.Length > 10)
+            {
+                MinerLogic(miners.Skip(2));
+                OwnIt(miners[0], miners[1]);
+            }
+            else
+            {
+                MinerLogic(miners);
+            }
+
             TransportLogic();
             CorvetteLogic();
             MissileBoatLogic();
@@ -139,11 +150,8 @@ namespace Joueur.cs.Games.Stardash
             // <<-- /Creer-Merge: runTurn -->>
         }
 
-        public void MinerLogic()
+        public void MinerLogic(IEnumerable<Unit> miners)
         {
-            var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
-
-            var next = AI.MYTHICITE.next(2);
             foreach (var miner in miners)
             {
                 if (miners.Count() > 15)
@@ -162,6 +170,99 @@ namespace Joueur.cs.Games.Stardash
                 }
             }
         }
+
+        public void OwnIt(Unit miner1, Unit miner2)
+        {
+            var transports = this.Player.Units.Where(u => u.Job == AI.TRANSPORT).ToArray();
+            var didMine = false;
+            if (miner1.inMiningRangeThisTurn(AI.MYTHICITE) && !miner1.IsBusy)
+            {
+                if (miner1.remainingCapacity() > 0)
+                {
+                    Solver.mine(miner1, new[] { AI.MYTHICITE });
+                    didMine = true;
+                    if (miner2.Energy < 10)
+                    {
+                        Solver.moveToward(miner2, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, 0, true);
+                    }
+                    else
+                    {
+                        Solver.moveAheadOf(miner2, AI.MYTHICITE, 2);
+                    }
+                }
+                else
+                {
+                    var transport = transports.FirstOrDefault(t => t.canTransferThisTurn(miner1));
+                    if (transport != null)
+                    {
+                        Solver.moveToward(transport, miner1.X, miner1.Y, transport.Job.Range);
+                        Solver.transfer(transport, miner1, "mythicite", 1);
+                        Solver.mine(miner1, new[] { AI.MYTHICITE });
+                        didMine = true;
+                        if (miner2.Energy < 10)
+                        {
+                            Solver.moveToward(miner2, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, 0, true);
+                        }
+                        else
+                        {
+                            Solver.moveAheadOf(miner2, AI.MYTHICITE, 2);
+                        }
+                    }
+                }
+            }
+
+            if (!didMine && miner2.inMiningRangeThisTurn(AI.MYTHICITE) && !miner2.IsBusy)
+            {
+                if (miner2.remainingCapacity() > 0)
+                {
+                    Solver.mine(miner2, new[] { AI.MYTHICITE });
+                    if (miner1.Energy < 10)
+                    {
+                        Solver.moveToward(miner2, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, 0, true);
+                    }
+                    else
+                    {
+                        Solver.moveAheadOf(miner1, AI.MYTHICITE, 2);
+                    }
+                }
+                else
+                {
+                    var transport = transports.FirstOrDefault(t => t.canTransferThisTurn(miner2));
+                    if (transport != null)
+                    {
+                        Solver.moveToward(transport, miner2.X, miner2.Y, transport.Job.Range);
+                        Solver.transfer(transport, miner2, "mythicite", 1);
+                        Solver.mine(miner2, new[] { AI.MYTHICITE });
+                        if (miner1.Energy < 10)
+                        {
+                            Solver.moveToward(miner2, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, 0, true);
+                        }
+                        else
+                        {
+                            Solver.moveAheadOf(miner1, AI.MYTHICITE, 2);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Solver.mine(miner1, new[] { AI.MYTHICITE }, true, true);
+                Solver.mine(miner2, new[] { AI.MYTHICITE }, true, true);
+            }
+
+            foreach (var transport in transports)
+            {
+                if (transport.remainingCapacity() == 0)
+                {
+                    Solver.moveToward(transport, AI.PLAYER.HomeBase.X, AI.PLAYER.HomeBase.Y, 0, true);
+                }
+                else
+                {
+                    Solver.moveAheadOf(transport, AI.MYTHICITE, 2);
+                }
+            }
+        }
+
         public void TransportLogic()
         {
             string[] order = { "mythicite", "legendarium", "rarium", "genarium" };
@@ -214,7 +315,7 @@ namespace Joueur.cs.Games.Stardash
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,
-                AI.MINER,
+                AI.TRANSPORT,
                 AI.MINER,
             };
             while (Player.Money >= desiredUnits[spawnListIndex].UnitCost)

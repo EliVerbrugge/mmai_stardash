@@ -106,7 +106,12 @@ namespace Joueur.cs.Games.Stardash
 
         public static bool inMiningRangeThisTurn(this Unit unit, Body body)
         {
-            return Solver.inRangeE1(unit.distance(body), unit.Job.Range + body.Radius + unit.Moves);
+            return Solver.inRangeE2(unit.distance(body), unit.Job.Range + body.Radius + unit.Moves);
+        }
+
+        public static bool canTransferThisTurn(this Unit transport, Unit miner)
+        {
+            return transport.remainingCapacity() > 0 && Solver.inRangeE2(transport.distance(miner), transport.Job.Range + transport.Moves);
         }
 
         public static Vector next(this Body body, int turns)

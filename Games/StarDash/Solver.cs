@@ -170,7 +170,7 @@ namespace Joueur.cs.Games.Stardash
             }
         }
 
-        public static void transfer(Unit transport, Unit other, string material)
+        public static void transfer(Unit transport, Unit other, string material, int amount = -1)
         {
             if (transport.remainingCapacity() == 0)
             {
@@ -196,7 +196,7 @@ namespace Joueur.cs.Games.Stardash
 
             if (hasMineral)
             {
-                transport.Transfer(other, -1, material);
+                transport.Transfer(other, amount, material);
             }
         }
 
