@@ -139,17 +139,22 @@ namespace Joueur.cs.Games.Stardash
         public void MinerLogic()
         {
             var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
+            var minersNearMythicite = miners.OrderBy(m => m.distance(AI.MYTHICITE));
+            var mythiciteCount = Math.Max(miners.Count() / 3 - 1, 0);
 
-            foreach (var miner in miners)
+            foreach (var miner in minersNearMythicite.Take(mythiciteCount))
             {
-                if (miner.distance(MYTHICITE) < miner.Job.Range * 2)
+                Solver.mine(miner, this.Game.Bodies, "mythicite");
+                var baseBody = this.Game.CurrentPlayer.HomeBase;
+                if (Extensions.remainingCapacity(miner) == 0)
                 {
-                    Solver.mine(miner, this.Game.Bodies, "mythicite");
+                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius);
                 }
-                else
-                {
-                    Solver.mine(miner, this.Game.Bodies);
-                }
+            }
+
+            foreach (var miner in miners.Skip(mythiciteCount))
+            {
+                Solver.mine(miner, this.Game.Bodies);
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (Extensions.remainingCapacity(miner) == 0)
                 {
@@ -194,7 +199,7 @@ namespace Joueur.cs.Games.Stardash
                 AI.CORVETTE,
                 AI.CORVETTE,
             };
-            while(Player.Money >= desiredUnits[spawnListIndex].UnitCost)
+            while (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
             {
                 this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, desiredUnits[spawnListIndex].Title);
                 spawnListIndex++;

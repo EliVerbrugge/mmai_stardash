@@ -101,14 +101,12 @@ namespace Joueur.cs.Games.Stardash
                     return;
                 }
                 var nearest = miners.MinByValue(b => b.distance(transport));
-                if (hasMovesE2(transport) && !inRangeE1(transport.distance(nearest), transport.Job.Range))
+                if (!hasMovesE2(transport) && !inRangeE1(transport.distance(nearest), transport.Job.Range))
                 {
                     return;
                 }
 
-                Console.WriteLine("{0}, {1}, {2}, {3}, {4}", transport.X, transport.Y, transport.Moves, nearest.X, nearest.Y);
                 moveToward(transport, nearest.X, nearest.Y, transport.Job.Range);
-                Console.WriteLine("{0}, {1}, {2}", transport.X, transport.Y, transport.Moves);
 
                 if (noCarries)
                 {
@@ -195,7 +193,7 @@ namespace Joueur.cs.Games.Stardash
             {
                 return true;
             }
-            
+
             var unit12 = v12.unit();
             var scalarProjection = v1C.dot(unit12);
 
