@@ -16,8 +16,8 @@ namespace Joueur.cs.Games.Stardash
     public class AI : BaseAI
     {
         #region Properties
-        #pragma warning disable 0169 // the never assigned warnings between here are incorrect. We set it for you via reflection. So these will remove it from the Error List.
-        #pragma warning disable 0649
+#pragma warning disable 0169 // the never assigned warnings between here are incorrect. We set it for you via reflection. So these will remove it from the Error List.
+#pragma warning disable 0649
         /// <summary>
         /// This is the Game object itself. It contains all the information about the current game.
         /// </summary>
@@ -26,8 +26,8 @@ namespace Joueur.cs.Games.Stardash
         /// This is your AI's player. It contains all the information about your player's state.
         /// </summary>
         public readonly Player Player;
-        #pragma warning restore 0169
-        #pragma warning restore 0649
+#pragma warning restore 0169
+#pragma warning restore 0649
 
         // <<-- Creer-Merge: properties -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
         // you can add additional properties here for your AI to use
@@ -45,9 +45,10 @@ namespace Joueur.cs.Games.Stardash
         public static Job MINER;
         public static Body MYTHICITE;
         public static Body SUN;
+        public static Body BASE;
         public static List<Vector> ROUTE_POINTS;
 
-
+        public static int spawnListIndex = 0;
         #region Methods
         /// <summary>
         /// This returns your AI's name to the game server. Just replace the string.
@@ -82,6 +83,7 @@ namespace Joueur.cs.Games.Stardash
             AI.MYTHICITE = this.Game.Bodies.First(b => b.MaterialType == "mythicite");
             AI.SUN = this.Game.Bodies.First(b => b.BodyType == "sun");
             AI.ROUTE_POINTS = new List<Vector>();
+            AI.BASE = this.Game.CurrentPlayer.HomeBase; ;
             var extend = AI.SUN.Radius + 32;
             for (double i = 0; i < Math.PI * 2; i += (Math.PI / 8.0))
             {
@@ -127,16 +129,6 @@ namespace Joueur.cs.Games.Stardash
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
             Console.WriteLine("Turn #{0}", this.Game.CurrentTurn);
 
-            var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
-            while (Player.Money >= MINER.UnitCost && miners.Count() <= 10)
-            {
-                this.Player.HomeBase.Spawn(this.Player.HomeBase.X+ this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "miner");
-            }
-            var transports = this.Player.Units.Where(u => u.Job == AI.TRANSPORT);
-            while (Player.Money >= TRANSPORT.UnitCost && transports.Count() <= 10)
-            {
-                this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "transport");
-            }
             MinerLogic();
             TransportLogic();
             return true;
@@ -149,7 +141,7 @@ namespace Joueur.cs.Games.Stardash
 
             foreach (var miner in miners)
             {
-                if (miner.distance(MYTHICITE) < miner.Job.Range*2)
+                if (miner.distance(MYTHICITE) < miner.Job.Range * 2)
                 {
                     Solver.mine(miner, this.Game.Bodies, "mythicite");
                 }
@@ -163,17 +155,17 @@ namespace Joueur.cs.Games.Stardash
                     Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius);
                 }
             }
-          }
+        }
         public void TransportLogic()
         {
-            string[] order = {"mythicite", "legendarium", "rarium", "genarium" };
+            string[] order = { "mythicite", "legendarium", "rarium", "genarium" };
             var transporters = this.Player.Units.Where(u => u.Job == AI.TRANSPORT);
 
             foreach (var transporter in transporters)
             {
                 Console.WriteLine(transporter.remainingCapacity());
                 Solver.transport(transporter, this.Player.Units, order);
-          
+
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (transporter.remainingCapacity() == 0)
                 {
@@ -187,13 +179,31 @@ namespace Joueur.cs.Games.Stardash
             {
                 Solver.attack(corvette, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER));
                 Solver.attack(corvette, AI.OPPONENT.Units);
+
+            }
+        }
+        public void Spawning()
+        {
+            var desiredUnits = new List<Job>
+            {
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.TRANSPORT
+            };
+            while (PLAYER.Money > 0)
+            {
+                if (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
+                {
+                    this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "miner");
+                }
             }
         }
     }
 
-        // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-        // you can add additional methods here for your AI to call
-        // <<-- /Creer-Merge: methods -->>
-        #endregion
- }
+    // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
+    // you can add additional methods here for your AI to call
+    // <<-- /Creer-Merge: methods -->>
+    #endregion
+}
 
