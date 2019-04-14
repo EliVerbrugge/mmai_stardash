@@ -101,7 +101,7 @@ namespace Joueur.cs.Games.Stardash
 
         public static bool canMine(this Unit unit, Body body)
         {
-            return unit.Job == AI.MINER && !unit.IsBusy && body.MaterialType != "none" && body.Amount > 0 && body.Owner != unit.Owner.Opponent && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected && unit.remainingCapacity() > 0;
+            return unit.Job == AI.MINER && !unit.IsBusy && body.MaterialType != "none" && body.Amount > 0 && body.Owner != unit.Owner.Opponent && unit.remainingCapacity() > 0;
         }
 
         public static bool inMiningRangeThisTurn(this Unit unit, Body body)

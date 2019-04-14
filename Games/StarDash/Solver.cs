@@ -122,7 +122,7 @@ namespace Joueur.cs.Games.Stardash
             }
 
 
-            if (AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected && !miner.IsBusy && inRangeE1(miner.distance(nearest), miner.Job.Range + nearest.Radius))
+            if (!miner.IsBusy && inRangeE1(miner.distance(nearest), miner.Job.Range + nearest.Radius))
             {
                 miner.Mine(nearest);
             }

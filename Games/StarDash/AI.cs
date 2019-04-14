@@ -51,6 +51,7 @@ namespace Joueur.cs.Games.Stardash
 
         public static int spawnListIndex = 3;
         public static int UNIT_CAP = 55;
+        public static Random rand = new Random();
         #region Methods
         /// <summary>
         /// This returns your AI's name to the game server. Just replace the string.
@@ -170,14 +171,22 @@ namespace Joueur.cs.Games.Stardash
 
         public void EvasiveMineuvers()
         {
-
+            foreach (var unit in AI.PLAYER.Units)
+            {
+                if (AI.OPPONENT.Units.Any(u => u.Job.Damage > 0 && u.distance(unit) < 100) || AI.OPPONENT.Projectiles.Any(p => Solver.distance(p.X - unit.X, p.Y - unit.Y) < 100))
+                {
+                    var randV = new Vector(rand.NextDouble() * AI.GAME.SizeX, rand.NextDouble() * AI.GAME.SizeY);
+                    Solver.moveToward(unit, randV.x, randV.y);
+                }
+            }
         }
 
         public void MinerLogic(IEnumerable<Unit> miners)
         {
+            var nextM = AI.MYTHICITE.next(3);
             foreach (var miner in miners)
             {
-                if (miners.Count() > 40 && AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2))
+                if (miners.Count() > 15 && !Solver.sunCollision(miner, nextM.x, nextM.y) && AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2))
                 {
                     Solver.mine(miner, new[] { AI.MYTHICITE }, true, true);
                 }
