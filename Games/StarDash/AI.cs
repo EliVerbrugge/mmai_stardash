@@ -85,7 +85,7 @@ namespace Joueur.cs.Games.Stardash
             AI.SUN = this.Game.Bodies.First(b => b.BodyType == "sun");
             AI.ROUTE_POINTS = new List<Vector>();
             AI.BASE = this.Game.CurrentPlayer.HomeBase; ;
-            var extend = AI.SUN.Radius + 32;
+            var extend = AI.SUN.Radius + 100;
             AI.VALUE_ORDERED_ASTEROIDS = this.Game.Bodies.Where(b => b.MaterialType != "none").OrderBy(b => b.MaterialType.getValue()).ToList();
             for (double i = 0; i < Math.PI * 2; i += (Math.PI / 8.0))
             {
@@ -148,17 +148,7 @@ namespace Joueur.cs.Games.Stardash
             {
                 if (miners.Count() > 15)
                 {
-                    if (miner.canMine(AI.MYTHICITE) && miner.inMiningRangeThisTurn(AI.MYTHICITE))
-                    {
-                        Console.WriteLine("Get Mythicite");
-                        Solver.mine(miner, new[] { AI.MYTHICITE });
-                        continue;
-                    }
-                    if (!Solver.sunCollision(miner, next.x, next.y) && miner.canMoveAndDash(next.x, next.y) &&  miner.remainingCapacity() > 0)
-                    {
-                        Console.WriteLine("Dash to Mythicite");
-                        Solver.moveToward(miner, next.x, next.y, 0, true);
-                    }
+                    Solver.mine(miner, new[] { AI.MYTHICITE }, true, true);
                 }
 
                 var predictAndDash = AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2);

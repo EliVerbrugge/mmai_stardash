@@ -25,7 +25,7 @@ namespace Joueur.cs.Games.Stardash
 
         public static void moveToward(Unit unit, double x, double y, double range = 0, bool doDash = false)
         {
-            if (unit.Moves == 0 && !doDash)
+            if (unit.IsBusy || (unit.Moves == 0 && !doDash))
             {
                 return;
             }
@@ -92,7 +92,6 @@ namespace Joueur.cs.Games.Stardash
             var firstInRangeThisTurn = bodies.FirstOrDefault(b => miner.inMiningRangeThisTurn(b) && miner.canMine(b));
             if (firstInRangeThisTurn != null)
             {
-                Console.WriteLine("Mine near");
                 moveToward(miner, firstInRangeThisTurn.X, firstInRangeThisTurn.Y, miner.Job.Range + firstInRangeThisTurn.Radius, false);
                 miner.Mine(firstInRangeThisTurn);
                 return;
@@ -107,8 +106,15 @@ namespace Joueur.cs.Games.Stardash
             var nearest = bodiesWithMaterial.MinByValue(b => b.distance(miner));
             if (doPredict && doDash)
             {
-                var next = nearest.next(2);
-                moveToward(miner, next.x, next.y, 0, doDash);
+                var visibleBodies = bodiesWithMaterial.Where(b => !sunCollision(miner, b.X, b.Y));
+                if (visibleBodies.Count() > 0)
+                {
+                    nearest = visibleBodies.MinByValue(b => b.distance(miner.Owner.HomeBase));
+                    var next = nearest.next(2);
+                    var nexter = nearest.next(4);
+                    var offset = new Vector(nexter.x - next.x, nexter.y - next.y).unit().scale(miner.Job.Range + nearest.Radius - ERROR);
+                    moveToward(miner, next.x + offset.x, next.y + offset.y, 0, doDash);
+                }
             }
             else
             {
