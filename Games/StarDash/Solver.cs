@@ -82,16 +82,27 @@ namespace Joueur.cs.Games.Stardash
             }
         }
 
-        public static void transport(Unit transport, IEnumerable<Body> miners, string[] order)
+        public static void transport(Unit transport, IEnumerable<Unit> units, string[] order)
         {
-            if(transport.Acted)
+            if(transport.Acted || transport.remainingCapacity() == 0)
+            {
+                return;
+            }
+            var nearest = units.Where(u => u.Job.Title == "miner").MinByValue(b => b.distance(transport));
+            if(nearest == null)
             {
                 return;
             }
 
-            if (transport.remainingCapacity() == transport.Job.CarryLimit)
+            moveToward(transport, nearest.X, nearest.Y, transport.Job.Range);
+
+            if (transport.distance(nearest) < transport.Job.Range+AI.GAME.ShipRadius)
             {
-                //var nearest = miners.Where(b => b.remaining > 0 && b.MaterialType == mineral);
+                transport.Transfer(transport, 10, order[0]);
+                transport.Transfer(transport, 10, order[1]);
+                transport.Transfer(transport, 10, order[2]);
+                transport.Transfer(transport, 10, order[3]);
+
             }
         }
 

@@ -126,12 +126,18 @@ namespace Joueur.cs.Games.Stardash
         public bool RunTurn()
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-            while(Player.Money >= MINER.UnitCost)
+            var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
+            while (Player.Money >= MINER.UnitCost && miners.Count() <= 10)
             {
                 this.Player.HomeBase.Spawn(this.Player.HomeBase.X+ this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "miner");
             }
+            var transports = this.Player.Units.Where(u => u.Job == AI.TRANSPORT);
+            while (Player.Money >= TRANSPORT.UnitCost && transports.Count() <= 10)
+            {
+                this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "transport");
+            }
             MinerLogic();
-
+            TransportLogic();
             return true;
             // <<-- /Creer-Merge: runTurn -->>
         }
@@ -142,14 +148,13 @@ namespace Joueur.cs.Games.Stardash
 
             foreach (var miner in miners)
             {
-                if (miner.distance(MYTHICITE) < miner.Job.Range)
+                if (miner.distance(MYTHICITE) < miner.Job.Range*2)
                 {
                     Solver.mine(miner, this.Game.Bodies, "mythicite");
                 }
                 else
                 {
-                    Solver.mine(miner, this.Game.Bodies, "mythicite");
-                    //Solver.mine(miner, this.Game.Bodies);
+                    Solver.mine(miner, this.Game.Bodies);
                 }
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (Extensions.remainingCapacity(miner) == 0)
@@ -158,7 +163,24 @@ namespace Joueur.cs.Games.Stardash
                 }
             }
           }
-     }
+        public void TransportLogic()
+        {
+            string[] order = {"mythicite", "legendarium", "rarium", "genarium" };
+            var transporters = this.Player.Units.Where(u => u.Job == AI.TRANSPORT);
+
+            foreach (var transporter in transporters)
+            {
+                Console.WriteLine(transporter.remainingCapacity());
+                Solver.transport(transporter, this.Player.Units, order);
+          
+                var baseBody = this.Game.CurrentPlayer.HomeBase;
+                if (Extensions.remainingCapacity(transporter) == 0)
+                {
+                    Solver.moveToward(transporter, baseBody.X, baseBody.Y);
+                }
+            }
+        }
+    }
 
         // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
         // you can add additional methods here for your AI to call
