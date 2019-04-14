@@ -85,7 +85,8 @@ namespace Joueur.cs.Games.Stardash
             var extend = AI.SUN.Radius + 32;
             for (double i = 0; i < Math.PI * 2; i += (Math.PI / 8.0))
             {
-                AI.ROUTE_POINTS.Append(new Vector(Math.Cos(i) * extend, Math.Sin(i) * extend));
+                AI.ROUTE_POINTS.Add(new Vector(Math.Cos(i) * extend + AI.SUN.X, Math.Sin(i) * extend + AI.SUN.Y));
+                Console.WriteLine(AI.ROUTE_POINTS.Last());
             }
         }
 

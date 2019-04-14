@@ -30,6 +30,26 @@ namespace Joueur.cs.Games.Stardash
                 return;
             }
 
+            if (sunCollision(unit, x, y))
+            {
+                var availableRoutePoints = AI.ROUTE_POINTS.Where(v => !sunCollision(unit, v.x, v.y)).ToArray();
+                if (availableRoutePoints.Length == 0)
+                {
+                    Console.WriteLine("No available route points {0}", new Vector(unit.X, unit.Y));
+                    return;
+                }
+
+                var bestRoutePoint = availableRoutePoints.MinByValue(v => Solver.distanceSquared(x - v.x, y - v.y));
+                Console.WriteLine("Collision {0}->{1}", new Vector(unit.X, unit.Y), bestRoutePoint);
+
+                moveToward(unit, bestRoutePoint.x, bestRoutePoint.y);
+                if (unit.Moves > 0)
+                {
+                    // moveToward(unit, x, y, range);
+                }
+                return;
+            }
+
             var dx = x - unit.X;
             var dy = y - unit.Y;
             var distance = Solver.distance(dx, dy);
@@ -139,17 +159,22 @@ namespace Joueur.cs.Games.Stardash
             {
                 return true;
             }
-
+            
             var unit12 = v12.unit();
             var scalarProjection = v1C.dot(unit12);
 
-            if (scalarProjection <= 0 || scalarProjection >= 1)
+            if (scalarProjection <= 0 || scalarProjection >= v12.length())
             {
                 return false;
             }
 
-            var projected = v12.scale(scalarProjection);
+            var projected = unit12.scale(scalarProjection);
             return Solver.distanceSquared(v1C.x - projected.x, v1C.y - projected.y) <= radiusSquare;
+        }
+
+        public static bool sunCollision(Unit unit, double x2, double y2)
+        {
+            return collision(unit.X, unit.Y, x2, y2, AI.SUN.X, AI.SUN.Y, AI.SUN.Radius + AI.GAME.ShipRadius + .01);
         }
     }
 }
