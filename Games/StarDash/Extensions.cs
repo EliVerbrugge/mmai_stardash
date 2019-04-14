@@ -56,5 +56,6 @@ namespace Joueur.cs.Games.Stardash
             }
             return min;
         }
+
     }
 }

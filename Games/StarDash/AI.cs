@@ -43,6 +43,8 @@ namespace Joueur.cs.Games.Stardash
         public static Job MARTYR;
         public static Job TRANSPORT;
         public static Job MINER;
+        public static Body MYTHICITE;
+
 
         #region Methods
         /// <summary>
@@ -75,6 +77,7 @@ namespace Joueur.cs.Games.Stardash
             AI.MARTYR = this.Game.Jobs[2];
             AI.TRANSPORT = this.Game.Jobs[3];
             AI.MINER = this.Game.Jobs[4];
+            AI.MYTHICITE = this.Game.Bodies.First(b => b.MaterialType == "mythicite");
         }
 
         /// <summary>
@@ -113,26 +116,43 @@ namespace Joueur.cs.Games.Stardash
         public bool RunTurn()
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
-            
-            var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
-
-            foreach (var miner in miners)
+            while(Player.Money >= MINER.UnitCost)
             {
-                var body = this.Game.Bodies.Where(b => b.MaterialType != "none").MinByValue(b => b.distance(miner));
-                Solver.moveToward(miner, body.X, body.Y, miner.Job.Range + body.Radius);
-                if (miner.distance(body) < miner.Job.Range + body.Radius)
-                {
-                    miner.Mine(body);
-                }
+                this.Player.HomeBase.Spawn(this.Player.HomeBase.X+ this.Player.HomeBase.Radius, this.Player.HomeBase.Y, "miner");
             }
+            MinerLogic();
 
             return true;
             // <<-- /Creer-Merge: runTurn -->>
         }
 
+        public void MinerLogic()
+        {
+            var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
+
+            foreach (var miner in miners)
+            {
+                if (miner.distance(MYTHICITE) < miner.Job.Range)
+                {
+                    Solver.mine(miner, this.Game.Bodies, "mythicite");
+                }
+                else
+                {
+                    Solver.mine(miner, this.Game.Bodies, "mythicite");
+                    //Solver.mine(miner, this.Game.Bodies);
+                }
+                var baseBody = this.Game.CurrentPlayer.HomeBase;
+                if (Extensions.remainingCapacity(miner) == 0)
+                {
+                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius);
+                }
+            }
+          }
+     }
+
         // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
         // you can add additional methods here for your AI to call
         // <<-- /Creer-Merge: methods -->>
         #endregion
-    }
-}
+ }
+

@@ -48,7 +48,40 @@ namespace Joueur.cs.Games.Stardash
             {
                 return;
             }
-            var nearest = bodies.Where(b => b.Amount > 0).MinByValue(b => b.distance(miner));
+            var nearest = bodies.Where(b => b.Amount > 0 && b.MaterialType != "none").MinByValue(b => b.distance(miner));
+            if (nearest == null)
+            {
+                return;
+            }
+
+            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius);
+
+            if (miner.distance(nearest) < miner.Job.Range + nearest.Radius)
+            {
+                miner.Mine(nearest);
+            }
+        }
+
+        public static void transport(Unit transport, IEnumerable<Body> miners, string[] order)
+        {
+            if(transport.Acted)
+            {
+                return;
+            }
+
+            if (transport.remainingCapacity() == transport.Job.CarryLimit)
+            {
+                //var nearest = miners.Where(b => b.remaining > 0 && b.MaterialType == mineral);
+            }
+        }
+
+        public static void mine(Unit miner, IEnumerable<Body> bodies, string mineral)
+        {
+            if (miner.Acted || miner.remainingCapacity() == 0)
+            {
+                return;
+            }
+            var nearest = bodies.Where(b => b.Amount > 0 && b.MaterialType == mineral).MinByValue(b => b.distance(miner));
             if (nearest == null)
             {
                 return;
