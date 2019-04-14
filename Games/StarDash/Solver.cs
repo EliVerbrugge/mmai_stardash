@@ -25,16 +25,26 @@ namespace Joueur.cs.Games.Stardash
 
         public static void moveToward(Unit unit, double x, double y, double range = 0)
         {
+            if (unit.Moves == 0)
+            {
+                return;
+            }
+
             var dx = x - unit.X;
             var dy = y - unit.Y;
-            var distance = Solver.distance(dx, dy) - range;
-            var magnitude = Math.Min(unit.Moves, distance);
+            var distance = Solver.distance(dx, dy);
+            if (distance < range - .01)
+            {
+                return;
+            }
+
+            var magnitude = Math.Min(unit.Moves - .01, distance - range + .01);
             unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
         }
 
         public static double distance(double dx, double dy)
         {
-            return Math.Sqrt(dx * dx + dy + dy);
+            return Math.Sqrt(dx * dx + dy * dy);
         }
     }
 }

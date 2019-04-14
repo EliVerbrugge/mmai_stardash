@@ -29,6 +29,11 @@ namespace Joueur.cs.Games.Stardash
             return Solver.distance(body.X - unit.X, body.Y - unit.Y);
         }
 
+        public static int remainingCapacity(this Unit unit)
+        {
+            return unit.Job.CarryLimit - unit.Mythicite - unit.Legendarium - unit.Rarium - unit.Genarium;
+        }
+
         public static T MinByValue<T, K>(this IEnumerable<T> source, Func<T, K> selector)
         {
             var comparer = Comparer<K>.Default;

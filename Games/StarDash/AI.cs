@@ -119,9 +119,12 @@ namespace Joueur.cs.Games.Stardash
             foreach (var miner in miners)
             {
                 var body = this.Game.Bodies.Where(b => b.MaterialType != "none").MinByValue(b => b.distance(miner));
-                Solver.moveToward(miner, body.X, body.Y);
+                Solver.moveToward(miner, body.X, body.Y, miner.Job.Range + body.Radius);
+                if (miner.distance(body) < miner.Job.Range + body.Radius)
+                {
+                    miner.Mine(body);
+                }
             }
-
 
             return true;
             // <<-- /Creer-Merge: runTurn -->>
