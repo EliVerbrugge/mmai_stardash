@@ -84,25 +84,45 @@ namespace Joueur.cs.Games.Stardash
 
         public static void transport(Unit transport, IEnumerable<Unit> units, string[] order)
         {
-            if(transport.Acted || transport.remainingCapacity() == 0)
+            while (true)
             {
-                return;
-            }
-            var nearest = units.Where(u => u.Job.Title == "miner").MinByValue(b => b.distance(transport));
-            if(nearest == null)
-            {
-                return;
-            }
+                if (transport.Acted || transport.remainingCapacity() == 0)
+                {
+                    return;
+                }
 
-            moveToward(transport, nearest.X, nearest.Y, transport.Job.Range);
+                var miners = units.Where(u => u.Job.Title == "miner" && u.remainingCapacity() < u.Job.CarryLimit);
+                var noCarries = !miners.Any();
+                if (noCarries)
+                {
+                    miners = units.Where(u => u.Job.Title == "miner");
+                }
+                if (!miners.Any())
+                {
+                    return;
+                }
+                var nearest = miners.MinByValue(b => b.distance(transport));
+                if (transport.Moves < .02 && transport.distance(nearest) > transport.Job.Range + .01)
+                {
+                    return;
+                }
 
-            if (transport.distance(nearest) < transport.Job.Range+AI.GAME.ShipRadius)
-            {
-                transport.Transfer(transport, 10, order[0]);
-                transport.Transfer(transport, 10, order[1]);
-                transport.Transfer(transport, 10, order[2]);
-                transport.Transfer(transport, 10, order[3]);
+                Console.WriteLine("{0}, {1}, {2}, {3}, {4}", transport.X, transport.Y, transport.Moves, nearest.X, nearest.Y);
+                moveToward(transport, nearest.X, nearest.Y, transport.Job.Range);
+                Console.WriteLine("{0}, {1}, {2}", transport.X, transport.Y, transport.Moves);
 
+                if (noCarries)
+                {
+                    return;
+                }
+
+                if (transport.distance(nearest) < transport.Job.Range + .01)
+                {
+                    transport.Transfer(nearest, -1, order[0]);
+                    transport.Transfer(nearest, -1, order[1]);
+                    transport.Transfer(nearest, -1, order[2]);
+                    transport.Transfer(nearest, -1, order[3]);
+                }
             }
         }
 

@@ -86,7 +86,6 @@ namespace Joueur.cs.Games.Stardash
             for (double i = 0; i < Math.PI * 2; i += (Math.PI / 8.0))
             {
                 AI.ROUTE_POINTS.Add(new Vector(Math.Cos(i) * extend + AI.SUN.X, Math.Sin(i) * extend + AI.SUN.Y));
-                Console.WriteLine(AI.ROUTE_POINTS.Last());
             }
         }
 
@@ -126,6 +125,8 @@ namespace Joueur.cs.Games.Stardash
         public bool RunTurn()
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
+            Console.WriteLine("Turn #{0}", this.Game.CurrentTurn);
+
             var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
             while (Player.Money >= MINER.UnitCost && miners.Count() <= 10)
             {
@@ -174,7 +175,7 @@ namespace Joueur.cs.Games.Stardash
                 Solver.transport(transporter, this.Player.Units, order);
           
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
-                if (Extensions.remainingCapacity(transporter) == 0)
+                if (transporter.remainingCapacity() == 0)
                 {
                     Solver.moveToward(transporter, baseBody.X, baseBody.Y);
                 }
