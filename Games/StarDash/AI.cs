@@ -50,6 +50,7 @@ namespace Joueur.cs.Games.Stardash
         public static List<Vector> ROUTE_POINTS;
 
         public static int spawnListIndex = 3;
+        public static int UNIT_CAP = 55;
         #region Methods
         /// <summary>
         /// This returns your AI's name to the game server. Just replace the string.
@@ -148,9 +149,6 @@ namespace Joueur.cs.Games.Stardash
                 MinerLogic(miners);
             }
 
-            TransportLogic();
-            CorvetteLogic();
-            MissileBoatLogic();
             return true;
             // <<-- /Creer-Merge: runTurn -->>
         }
@@ -167,15 +165,14 @@ namespace Joueur.cs.Games.Stardash
         {
             foreach (var miner in miners)
             {
-                if (miners.Count() > 40)
+                if (miners.Count() > 40 && AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2))
                 {
                     Solver.mine(miner, new[] { AI.MYTHICITE }, true, true);
                 }
 
-                var predictAndDash = AI.GAME.CurrentTurn >= (AI.GAME.OrbitsProtected - 2);
-                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "legendarium"), predictAndDash, predictAndDash);
-                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "rarium"), predictAndDash, predictAndDash);
-                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "genarium"), predictAndDash, predictAndDash);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "legendarium"), true, true);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "rarium"), true, true);
+                Solver.mine(miner, AI.GAME.Bodies.Where(b => b.MaterialType == "genarium"), true, true);
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (miner.remainingCapacity() == 0)
                 {
@@ -331,7 +328,7 @@ namespace Joueur.cs.Games.Stardash
                 AI.TRANSPORT,
                 AI.MINER,
             };
-            while (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
+            while (Player.Money >= desiredUnits[spawnListIndex].UnitCost && Player.Units.Count <= AI.UNIT_CAP)
             {
                 this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, desiredUnits[spawnListIndex].Title);
                 spawnListIndex++;

@@ -204,7 +204,7 @@ namespace Joueur.cs.Games.Stardash
         {
             var expectedTurns = turns;
             var nextV = body.next(expectedTurns);
-            while (sunCollision(unit, nextV.x, nextV.y))
+            while (sunCollision(unit, nextV.x, nextV.y) && expectedTurns < AI.GAME.TurnsToOrbit / 2)
             {
                 nextV = body.next(expectedTurns += 2);
             }
