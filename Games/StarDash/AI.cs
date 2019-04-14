@@ -44,6 +44,8 @@ namespace Joueur.cs.Games.Stardash
         public static Job TRANSPORT;
         public static Job MINER;
         public static Body MYTHICITE;
+        public static Body SUN;
+        public static List<Vector> ROUTE_POINTS;
 
 
         #region Methods
@@ -78,6 +80,13 @@ namespace Joueur.cs.Games.Stardash
             AI.TRANSPORT = this.Game.Jobs[3];
             AI.MINER = this.Game.Jobs[4];
             AI.MYTHICITE = this.Game.Bodies.First(b => b.MaterialType == "mythicite");
+            AI.SUN = this.Game.Bodies.First(b => b.BodyType == "sun");
+            AI.ROUTE_POINTS = new List<Vector>();
+            var extend = AI.SUN.Radius + 32;
+            for (double i = 0; i < Math.PI * 2; i += (Math.PI / 8.0))
+            {
+                AI.ROUTE_POINTS.Append(new Vector(Math.Cos(i) * extend, Math.Sin(i) * extend));
+            }
         }
 
         /// <summary>
