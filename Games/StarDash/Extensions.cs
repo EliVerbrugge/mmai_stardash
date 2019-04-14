@@ -76,5 +76,31 @@ namespace Joueur.cs.Games.Stardash
         {
             return unit.Energy > unit.dashCost(distance);
         }
+
+        public static double getValue(this string material)
+        {
+            switch (material)
+            {
+                case "mythicite":
+                    return 1000;
+                case "legendarium":
+                    return AI.GAME.LegendariumValue;
+                case "rarium":
+                    return AI.GAME.RariumValue;
+                case "genarium":
+                    return AI.GAME.GenariumValue;
+            }
+            return 0;
+        }
+
+        public static bool canMine(this Unit unit, Body body)
+        {
+            return unit.Job == AI.MINER && body.MaterialType != "none" && body.Amount > 0 && body.Owner != unit.Owner.Opponent && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected && unit.remainingCapacity() > 0;
+        }
+
+        public static bool inMiningRangeThisTurn(this Unit unit, Body body)
+        {
+            return Solver.inRangeE1(unit.distance(body) + unit.Moves, unit.Job.Range + body.Radius);
+        }
     }
 }

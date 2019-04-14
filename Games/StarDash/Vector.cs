@@ -74,5 +74,16 @@ namespace Joueur.cs.Games.Stardash
             var scalar = dot(unitOther);
             return unitOther.scale(scalar);
         }
+
+        public Vector rotate(Vector origin, double rads)
+        {
+            var cx = x - origin.x;
+            var cy = y - origin.y;
+            var s = Math.Sin(rads);
+            var c = Math.Cos(rads);
+            cx = cx * c - cy * s;
+            cy = cx * s + cy * c;
+            return new Vector(cx + origin.x, cy + origin.y);
+        }
     }
 }

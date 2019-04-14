@@ -46,6 +46,7 @@ namespace Joueur.cs.Games.Stardash
         public static Body MYTHICITE;
         public static Body SUN;
         public static Body BASE;
+        public static List<Body> VALUE_ORDERED_ASTEROIDS;
         public static List<Vector> ROUTE_POINTS;
 
         public static int spawnListIndex = 3;
@@ -85,6 +86,7 @@ namespace Joueur.cs.Games.Stardash
             AI.ROUTE_POINTS = new List<Vector>();
             AI.BASE = this.Game.CurrentPlayer.HomeBase; ;
             var extend = AI.SUN.Radius + 32;
+            AI.VALUE_ORDERED_ASTEROIDS = this.Game.Bodies.Where(b => b.MaterialType != "none").OrderBy(b => b.MaterialType.getValue()).ToList();
             for (double i = 0; i < Math.PI * 2; i += (Math.PI / 8.0))
             {
                 AI.ROUTE_POINTS.Add(new Vector(Math.Cos(i) * extend + AI.SUN.X, Math.Sin(i) * extend + AI.SUN.Y));
@@ -140,24 +142,25 @@ namespace Joueur.cs.Games.Stardash
         public void MinerLogic()
         {
             var miners = this.Player.Units.Where(u => u.Job == AI.MINER);
-            var minersNearMythicite = miners.OrderBy(m => m.distance(AI.MYTHICITE));
-            var mythiciteCount = Math.Max(miners.Count() / 3 - 1, 0);
 
-            foreach (var miner in minersNearMythicite.Take(mythiciteCount))
+            var next = new Vector(AI.MYTHICITE.X, AI.MYTHICITE.Y).rotate(new Vector(AI.SUN.X, AI.SUN.Y), ((-2 * Math.PI) / AI.GAME.TurnsToOrbit) * 2);
+            foreach (var miner in miners)
             {
-                Solver.mine(miner, new[] { AI.MYTHICITE });
-                var baseBody = this.Game.CurrentPlayer.HomeBase;
-                if (Extensions.remainingCapacity(miner) == 0)
+                if (miner.canMine(AI.MYTHICITE) && miner.inMiningRangeThisTurn(AI.MYTHICITE))
                 {
-                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius, true);
+                    Console.WriteLine("Get Mythicite");
+                    Solver.mine(miner, new[] { AI.MYTHICITE });
+                    continue;
                 }
-            }
+                if (miner.canDash(next.x, next.y) && !Solver.sunCollision(miner, next.x, next.y) && miner.remainingCapacity() > 0)
+                {
+                    Console.WriteLine("Dash to Mythicite");
+                    miner.Dash(next.x, next.y);
+                }
 
-            foreach (var miner in miners.Skip(mythiciteCount))
-            {
-                Solver.mine(miner, this.Game.Bodies);
+                Solver.mine(miner, AI.VALUE_ORDERED_ASTEROIDS, true);
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
-                if (Extensions.remainingCapacity(miner) == 0)
+                if (miner.remainingCapacity() == 0)
                 {
                     Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius, true);
                 }
@@ -226,7 +229,7 @@ namespace Joueur.cs.Games.Stardash
             {
                 this.Player.HomeBase.Spawn(this.Player.HomeBase.X + this.Player.HomeBase.Radius, this.Player.HomeBase.Y, desiredUnits[spawnListIndex].Title);
                 spawnListIndex++;
-                if (spawnListIndex > desiredUnits.Count() - 1)
+                if (spawnListIndex >= desiredUnits.Count)
                 {
                     spawnListIndex = 0;
                 }

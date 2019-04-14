@@ -61,26 +61,38 @@ namespace Joueur.cs.Games.Stardash
             if (doDash && netDistance > unit.Moves + unit.Job.Moves && unit.canDash(netDistance))
             {
                 unit.Dash(unit.X + (dx / distance) * netDistance, unit.Y + (dy / distance) * netDistance);
-            } else
+            }
+            else
             {
                 var magnitude = Math.Min(unit.Moves - ERROR, netDistance);
                 unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
             }
         }
 
-        public static void mine(Unit miner, IEnumerable<Body> bodies)
+        public static void mine(Unit miner, IEnumerable<Body> bodies, bool doDash = false)
         {
             if (miner.Acted || miner.remainingCapacity() == 0)
             {
                 return;
             }
+
+            var firstInRangeThisTurn = AI.VALUE_ORDERED_ASTEROIDS.FirstOrDefault(b => miner.inMiningRangeThisTurn(b));
+            if (firstInRangeThisTurn != null)
+            {
+                Console.WriteLine("Mine near");
+                moveToward(miner, firstInRangeThisTurn.X, firstInRangeThisTurn.Y, miner.Job.Range + firstInRangeThisTurn.Radius, false);
+                miner.Mine(firstInRangeThisTurn);
+                return;
+            }
+
             var nearest = bodies.Where(b => b.Amount > 0 && b.MaterialType != "none").MinByValue(b => b.distance(miner));
             if (nearest == null)
             {
                 return;
             }
+            
+            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius, doDash);
 
-            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius, true);
 
             if (miner.distance(nearest) < miner.Job.Range + nearest.Radius && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected)
             {
