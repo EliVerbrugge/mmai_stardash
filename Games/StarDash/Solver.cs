@@ -40,7 +40,6 @@ namespace Joueur.cs.Games.Stardash
                 }
 
                 var bestRoutePoint = availableRoutePoints.MinByValue(v => Solver.distanceSquared(x - v.x, y - v.y));
-                Console.WriteLine("Collision {0}->{1}", new Vector(unit.X, unit.Y), bestRoutePoint);
 
                 moveToward(unit, bestRoutePoint.x, bestRoutePoint.y);
                 if (unit.Moves > 0)
@@ -53,12 +52,12 @@ namespace Joueur.cs.Games.Stardash
             var dx = x - unit.X;
             var dy = y - unit.Y;
             var distance = Solver.distance(dx, dy);
-            if (distance < range - .01)
+            if (inRangeE2(distance, range))
             {
                 return;
             }
 
-            var magnitude = Math.Min(unit.Moves - .01, distance - range + .01);
+            var magnitude = Math.Min(unit.Moves - ERROR, distance - range + ERROR2);
             unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
         }
 
@@ -102,7 +101,7 @@ namespace Joueur.cs.Games.Stardash
                     return;
                 }
                 var nearest = miners.MinByValue(b => b.distance(transport));
-                if (transport.Moves < .02 && transport.distance(nearest) > transport.Job.Range + .01)
+                if (hasMovesE2(transport) && !inRangeE1(transport.distance(nearest), transport.Job.Range))
                 {
                     return;
                 }
@@ -140,7 +139,7 @@ namespace Joueur.cs.Games.Stardash
 
             moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius);
 
-            if (miner.distance(nearest) < miner.Job.Range + nearest.Radius)
+            if (inRangeE1(miner.distance(nearest), miner.Job.Range + nearest.Radius))
             {
                 miner.Mine(nearest);
             }
@@ -152,7 +151,13 @@ namespace Joueur.cs.Games.Stardash
             {
                 return;
             }
-            var nearest = targets.Where(t => t.Energy > 0).MinByValue(t => t.distance(attacker));
+            var alive = targets.Where(t => t.Energy > 0);
+            if (!alive.Any())
+            {
+                return;
+            }
+
+            var nearest = alive.MinByValue(t => t.distance(attacker));
             if (nearest == null)
             {
                 return;
@@ -160,7 +165,7 @@ namespace Joueur.cs.Games.Stardash
 
             moveToward(attacker, nearest.X, nearest.Y, attacker.Job.Range + AI.GAME.ShipRadius);
 
-            if (attacker.distance(nearest) < attacker.Job.Range + AI.GAME.ShipRadius)
+            if (inRangeE1(attacker.distance(nearest), attacker.Job.Range + AI.GAME.ShipRadius))
             {
                 attacker.Attack(nearest);
             }
@@ -200,12 +205,30 @@ namespace Joueur.cs.Games.Stardash
             }
 
             var projected = unit12.scale(scalarProjection);
-            return Solver.distanceSquared(v1C.x - projected.x, v1C.y - projected.y) <= radiusSquare;
+            return inRangeE1(Solver.distanceSquared(v1C.x - projected.x, v1C.y - projected.y), radiusSquare);
         }
 
         public static bool sunCollision(Unit unit, double x2, double y2)
         {
             return collision(unit.X, unit.Y, x2, y2, AI.SUN.X, AI.SUN.Y, AI.SUN.Radius + AI.GAME.ShipRadius + .01);
+        }
+
+        public static double ERROR = 0.01;
+        public static double ERROR2 = 0.02;
+
+        public static bool inRangeE1(double distance, double range)
+        {
+            return distance < range - ERROR;
+        }
+
+        public static bool inRangeE2(double distance, double range)
+        {
+            return distance < range - ERROR;
+        }
+
+        public static bool hasMovesE2(Unit unit)
+        {
+            return unit.Moves > ERROR2;
         }
     }
 }

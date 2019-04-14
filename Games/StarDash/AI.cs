@@ -181,6 +181,14 @@ namespace Joueur.cs.Games.Stardash
                 }
             }
         }
+        public void CorvetteLogic()
+        {
+            foreach (var corvette in this.Player.Units.Where(u => u.Job == AI.CORVETTE))
+            {
+                Solver.attack(corvette, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER));
+                Solver.attack(corvette, AI.OPPONENT.Units);
+            }
+        }
     }
 
         // <<-- Creer-Merge: methods -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
