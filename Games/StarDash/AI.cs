@@ -128,13 +128,10 @@ namespace Joueur.cs.Games.Stardash
         {
             // <<-- Creer-Merge: runTurn -->> - Code you add between this comment and the end comment will be preserved between Creer re-runs.
             Console.WriteLine("Turn #{0}", this.Game.CurrentTurn);
-<<<<<<< HEAD
-
-=======
             Spawning();
->>>>>>> Spawn code
             MinerLogic();
             TransportLogic();
+            CorvetteLogic();
             return true;
             // <<-- /Creer-Merge: runTurn -->>
         }
