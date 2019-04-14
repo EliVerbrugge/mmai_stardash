@@ -23,7 +23,7 @@ namespace Joueur.cs.Games.Stardash
             }
         }
 
-        public static void moveToward(Unit unit, double x, double y, double range = 0)
+        public static void moveToward(Unit unit, double x, double y, double range = 0, bool doDash = false)
         {
             if (unit.Moves == 0)
             {
@@ -41,10 +41,10 @@ namespace Joueur.cs.Games.Stardash
 
                 var bestRoutePoint = availableRoutePoints.MinByValue(v => Solver.distanceSquared(x - v.x, y - v.y));
 
-                moveToward(unit, bestRoutePoint.x, bestRoutePoint.y);
+                moveToward(unit, bestRoutePoint.x, bestRoutePoint.y, 0, doDash);
                 if (hasMovesE2(unit))
                 {
-                    moveToward(unit, x, y, range);
+                    moveToward(unit, x, y, range, doDash);
                 }
                 return;
             }
@@ -57,8 +57,15 @@ namespace Joueur.cs.Games.Stardash
                 return;
             }
 
-            var magnitude = Math.Min(unit.Moves - ERROR, distance - range + ERROR2);
-            unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
+            var netDistance = distance - range + ERROR2;
+            if (doDash && netDistance > unit.Moves + unit.Job.Moves && unit.canDash(netDistance))
+            {
+                unit.Dash(unit.X + (dx / distance) * netDistance, unit.Y + (dy / distance) * netDistance);
+            } else
+            {
+                var magnitude = Math.Min(unit.Moves - ERROR, netDistance);
+                unit.Move(unit.X + (dx / distance) * magnitude, unit.Y + (dy / distance) * magnitude);
+            }
         }
 
         public static void mine(Unit miner, IEnumerable<Body> bodies)
@@ -73,7 +80,7 @@ namespace Joueur.cs.Games.Stardash
                 return;
             }
 
-            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius);
+            moveToward(miner, nearest.X, nearest.Y, miner.Job.Range + nearest.Radius, true);
 
             if (miner.distance(nearest) < miner.Job.Range + nearest.Radius && AI.GAME.CurrentTurn >= AI.GAME.OrbitsProtected)
             {

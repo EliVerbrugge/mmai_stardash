@@ -57,5 +57,24 @@ namespace Joueur.cs.Games.Stardash
             return min;
         }
 
+        public static int dashCost(this Unit unit, double x, double y)
+        {
+            return unit.dashCost(Solver.distance(x - unit.X, y - unit.Y));
+        }
+
+        public static int dashCost(this Unit unit, double distance)
+        {
+            return (int)Math.Ceiling((distance + Solver.ERROR) / AI.GAME.DashDistance) * AI.GAME.DashCost;
+        }
+
+        public static bool canDash(this Unit unit, double x, double y)
+        {
+            return unit.Energy > unit.dashCost(x, y);
+        }
+
+        public static bool canDash(this Unit unit, double distance)
+        {
+            return unit.Energy > unit.dashCost(distance);
+        }
     }
 }

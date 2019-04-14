@@ -148,7 +148,7 @@ namespace Joueur.cs.Games.Stardash
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (Extensions.remainingCapacity(miner) == 0)
                 {
-                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius);
+                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius, true);
                 }
             }
 
@@ -158,7 +158,7 @@ namespace Joueur.cs.Games.Stardash
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (Extensions.remainingCapacity(miner) == 0)
                 {
-                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius);
+                    Solver.moveToward(miner, baseBody.X, baseBody.Y, baseBody.Radius, true);
                 }
             }
         }
@@ -175,7 +175,7 @@ namespace Joueur.cs.Games.Stardash
                 var baseBody = this.Game.CurrentPlayer.HomeBase;
                 if (transporter.remainingCapacity() == 0)
                 {
-                    Solver.moveToward(transporter, baseBody.X, baseBody.Y);
+                    Solver.moveToward(transporter, baseBody.X, baseBody.Y, baseBody.Radius, true);
                 }
             }
         }
@@ -207,9 +207,20 @@ namespace Joueur.cs.Games.Stardash
                 AI.MINER,
                 AI.MINER,
                 AI.MINER,
+                AI.MISSILE_BOAT,
                 AI.CORVETTE,
                 AI.CORVETTE,
-                AI.MISSILE_BOAT
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.TRANSPORT,
+                AI.CORVETTE,
+                AI.CORVETTE,
+                AI.MINER,
+                AI.MINER,
+                AI.MINER,
+                AI.CORVETTE,
+                AI.CORVETTE,
             };
             while (Player.Money >= desiredUnits[spawnListIndex].UnitCost)
             {
