@@ -160,7 +160,7 @@ namespace Joueur.cs.Games.Stardash
             }
         }
 
-        public static void attack(Unit attacker, IEnumerable<Unit> targets)
+        public static void attack(Unit attacker, IEnumerable<Unit> targets, bool missile=false)
         {
             if (attacker.Acted || attacker.Job.Damage == 0)
             {
@@ -180,7 +180,11 @@ namespace Joueur.cs.Games.Stardash
 
             moveToward(attacker, nearest.X, nearest.Y, attacker.Job.Range + AI.GAME.ShipRadius);
 
-            if (inRangeE1(attacker.distance(nearest), attacker.Job.Range + AI.GAME.ShipRadius))
+            if (!missile && inRangeE1(attacker.distance(nearest), attacker.Job.Range + AI.GAME.ShipRadius))
+            {
+                attacker.Attack(nearest);
+            }
+            else if(missile && inRangeE1(attacker.distance(nearest), 500))
             {
                 attacker.Attack(nearest);
             }

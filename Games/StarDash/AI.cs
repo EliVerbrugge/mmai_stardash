@@ -193,8 +193,8 @@ namespace Joueur.cs.Games.Stardash
         {
             foreach (var missileboat in this.Player.Units.Where(u => u.Job == AI.MISSILE_BOAT))
             {
-                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER && u.distance(missileboat) <= 500));
-                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER && u.distance(missileboat) <= 500));
+                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER), true);
+                Solver.attack(missileboat, AI.OPPONENT.Units.Where(u => u.Job == AI.MINER), true);
                 Solver.attack(missileboat, AI.OPPONENT.Units);
 
             }
